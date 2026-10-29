@@ -326,6 +326,7 @@ class Gateway:
         finally:
             self.running.clear()
             self.db.close()
+            
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Gateway central do Trabalho 01')
