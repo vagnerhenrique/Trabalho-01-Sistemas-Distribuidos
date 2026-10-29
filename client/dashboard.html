@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Data center • Trabalho 01</title>
+  <link rel="stylesheet" href="/dashboard.css"/>
+  <script defer src="/dashboard.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-icon">◈</span><span>DATA CENTER<span class="brand-sub">SISTEMA DISTRIBUÍDO</span></span></div>
+    <div class="nav-label">GERENCIAMENTO</div>
+    <nav aria-label="Navegação">
+      <a class="nav-link active" href="#visao-geral"><span>▦</span> Visão geral</a>
+      <a class="nav-link" href="#fontes"><span>◉</span> Fontes de dados</a>
+      <a class="nav-link" href="#analytics"><span>◩</span> Análises</a>
+      <a class="nav-link" href="#controle"><span>⚙</span> Controle remoto</a>
+    </nav>
+    <div class="sidebar-bottom"><div class="protocols"><span>TCP</span><span>UDP</span><span>PB</span><span>gRPC</span></div><div>UFC • Sistemas Distribuídos</div><div class="side-muted">Painel local · atualização automática</div></div>
+  </aside>
+  <main class="main">
+    <header class="topbar"><div><div class="eyebrow">TRABALHO 01 <span class="dot-separator">/</span> TELEMETRIA</div><h1 id="visao-geral">Monitoramento do ambiente</h1><p class="subtitle">Sensores distribuídos, histórico e controle em tempo real.</p></div><div class="header-actions"><div id="gateway-status" class="connection checking"><span class="status-light"></span>Conectando...</div><button id="refresh" class="btn btn-primary">↻ Atualizar</button></div></header>
+    <section class="metric-grid" aria-label="Resumo do sistema">
+      <article class="metric-card"><div class="metric-icon blue">◎</div><div class="card-label">Fontes registradas</div><div id="total-sources" class="metric-value">—</div><div class="card-hint">Dispositivos identificados</div></article>
+      <article class="metric-card"><div class="metric-icon green">↗</div><div class="card-label">Fontes online</div><div id="online-sources" class="metric-value">—</div><div class="card-hint">Com comunicação ativa</div></article>
+      <article class="metric-card"><div class="metric-icon orange">♨</div><div class="card-label">Temperatura · Fonte A</div><div class="metric-value"><span id="temp-value">—</span><span class="unit">°C</span></div><div class="card-hint">Última leitura recebida</div></article>
+      <article class="metric-card"><div class="metric-icon purple">◍</div><div class="card-label">Umidade · Fonte A</div><div class="metric-value"><span id="hum-value">—</span><span class="unit">%</span></div><div class="card-hint">Última leitura recebida</div></article>
+    </section>
+    <section id="fontes" class="panel sources-section"><div class="section-heading"><div><h2>Fontes conectadas</h2><p>Descoberta automática por multicast UDP.</p></div><span id="last-update" class="subtle">Aguardando dados</span></div><div class="table-scroll"><table><thead><tr><th>FONTE</th><th>TIPO</th><th>STATUS</th><th>IP</th><th>INTERVALO</th><th>CONTROLE</th></tr></thead><tbody id="sources-body"><tr><td colspan="6" class="empty">Consultando Gateway...</td></tr></tbody></table></div></section>
+    <div class="columns">
+      <section id="analytics" class="panel chart-panel"><div class="section-heading"><div><h2>Histórico de medições</h2><p>Leituras recebidas e persistidas no Gateway.</p></div></div><div class="filters"><label>Fonte<select id="history-source"><option value="FONTE_A">FONTE_A</option></select></label><label>Grandeza<select id="history-metric"><option value="temperature">Temperatura (°C)</option><option value="humidity">Umidade (%)</option><option value="co2">CO₂ (ppm)</option><option value="noise">Ruído (dB)</option></select></label><button id="history-refresh" class="btn btn-secondary">Atualizar gráfico</button></div><div class="chart-container"><canvas id="history-canvas" role="img" aria-label="Gráfico de histórico das leituras"></canvas><div id="chart-empty" class="chart-empty" hidden>Sem medições para estes filtros.</div></div><div class="chart-footer"><span><span class="legend-line"></span><span id="chart-series-name">Temperatura</span></span><span id="history-count">0 amostras</span></div></section>
+      <section class="panel analyze-panel"><div class="section-heading"><div><h2>Consultas analíticas</h2><p>Estatísticas calculadas pelo Gateway.</p></div></div><div class="analytics-form"><label>Operação<select id="aggregate-op"><option value="avg">Média</option><option value="min">Mínimo</option><option value="max">Máximo</option><option value="stddev">Desvio padrão</option></select></label><label>Grandeza<select id="aggregate-metric"><option value="temperature">Temperatura</option><option value="humidity">Umidade</option><option value="co2">CO₂</option><option value="noise">Ruído</option></select></label><label>Fonte<select id="aggregate-source"><option value="">Todas as fontes</option></select></label><label>Período<select id="aggregate-window"><option value="900">15 minutos</option><option value="3600" selected>1 hora</option><option value="86400">24 horas</option><option value="604800">7 dias</option></select></label><button id="run-aggregate" class="btn btn-primary wide">Calcular estatística →</button></div><div id="aggregate-result" class="aggregate-result"><div class="small-label">RESULTADO</div><div class="aggregate-number">—</div><p>Selecione os filtros e clique em calcular.</p></div></section>
+    </div>
+    <section id="controle" class="panel controls-section"><div class="section-heading"><div><h2>Controle remoto · gRPC</h2><p>Comandos enviados ao Gateway por TCP/Protobuf e encaminhados por gRPC para a Fonte A.</p></div><span class="control-note">Fonte controlável</span></div><div class="control-layout"><div class="control-left"><label class="select-label">Selecionar dispositivo<select id="control-source"><option value="">Aguardando fontes...</option></select></label><div id="control-availability" class="control-status">Aguardando descoberta e serviço gRPC.</div><div class="action-row"><button id="btn-on" class="btn btn-success" disabled>▶ Ativar fonte</button><button id="btn-off" class="btn btn-danger" disabled>■ Desativar fonte</button></div><div class="action-row"><button id="btn-failure-on" class="btn btn-outline" disabled>Simular falha</button><button id="btn-failure-off" class="btn btn-outline" disabled>Recuperar fonte</button></div></div><div class="control-right"><div class="control-card"><label for="interval-value">Intervalo de transmissão</label><p>Defina a frequência das mensagens UDP.</p><div class="inline-control"><input id="interval-value" type="number" min="2000" max="3600000" step="1000" value="15000"/><span>ms</span><button id="btn-interval" class="btn btn-secondary" disabled>Aplicar</button></div></div><div class="control-card"><label for="threshold-value">Limiar de alerta</label><p>Envio imediato quando a temperatura cruzar o limite.</p><div class="inline-control"><input id="threshold-value" type="number" min="-40" max="80" step="0.5" value="30"/><span>°C</span><button id="btn-threshold" class="btn btn-secondary" disabled>Aplicar</button></div></div></div></div><div id="command-feedback" role="status" class="feedback">Nenhum comando enviado nesta sessão.</div></section>
+    <footer>GESTÃO DE AMBIENTE INTELIGENTE <span>ESP8266 · UDP · Protocol Buffers · TCP · gRPC</span></footer>
+  </main>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

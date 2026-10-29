@@ -1,0 +1,101 @@
+syntax = "proto3";
+package ambiente;
+
+// TODAS as mensagens de rede (UDP unicast, descoberta e TCP) seguem este contrato.
+message DiscoveryRequest {
+  string gateway_ip = 1;
+  uint32 announce_port = 2;
+  uint32 telemetry_port = 3;
+}
+message SourceAnnouncement {
+  string source_id = 1;
+  string kind = 2;
+  string ip = 3;
+  bool controllable = 4;
+  uint32 grpc_port = 5;
+  string grpc_host = 6;
+  bool enabled = 7;
+  uint32 interval_ms = 8;
+  bool failure = 9;
+  float threshold = 10;
+}
+message Telemetry {
+  string source_id = 1;
+  uint32 sequence = 2;
+  float temperature_c = 3;
+  float humidity_percent = 4;
+  uint64 uptime_ms = 5;
+  bool alert = 6;
+  string metric = 7;         // co2, noise ou vazio (para termohigrometro)
+  float metric_value = 8;
+}
+message ControlRequest {
+  string source_id = 1;
+  string command = 2;       // enabled, interval, threshold, failure
+  bool enabled = 3;
+  uint32 interval_ms = 4;
+  float threshold = 5;
+  bool failure = 6;
+  uint32 request_id = 7;
+}
+message ControlResponse {
+  bool success = 1;
+  string message = 2;
+  bool enabled = 3;
+  uint32 interval_ms = 4;
+  float threshold = 5;
+  bool failure = 6;
+  uint32 request_id = 7;
+}
+message ClientRequest {
+  string operation = 1;      // list, control, aggregate, history
+  string source_id = 2;
+  string command = 3;
+  bool enabled = 4;
+  uint32 interval_ms = 5;
+  float threshold = 6;
+  bool failure = 7;
+  string metric = 8;
+  uint32 window_seconds = 9;
+  string aggregate = 10;     // avg, min, max, stddev
+  uint32 limit = 11;
+}
+message SourceInfo {
+  string source_id = 1;
+  string kind = 2;
+  string ip = 3;
+  bool controllable = 4;
+  bool enabled = 5;
+  uint32 interval_ms = 6;
+  string state = 7;          // ONLINE, OFFLINE, DISABLED, FAILURE
+  uint64 last_seen_unix = 8;
+  float last_temperature_c = 9;
+  float last_humidity_percent = 10;
+  string grpc_host = 11;
+  uint32 grpc_port = 12;
+}
+message AggregateResult {
+  string metric = 1;
+  string aggregate = 2;
+  double value = 3;
+  uint32 samples = 4;
+  string source_id = 5;
+}
+message ReadingRecord {
+  uint64 timestamp = 1;
+  string source_id = 2;
+  string metric = 3;
+  double value = 4;
+  bool alert = 5;
+}
+message ClientResponse {
+  bool success = 1;
+  string message = 2;
+  repeated SourceInfo sources = 3;
+  AggregateResult result = 4;
+  repeated ReadingRecord readings = 5;
+}
+service SourceControl {
+  rpc Configure(ControlRequest) returns (ControlResponse);
+  rpc GetState(ControlRequest) returns (ControlResponse);
+}
