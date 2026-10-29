@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.venv/
+dados/
+*.sqlite3
+firmware/**/Secrets.h

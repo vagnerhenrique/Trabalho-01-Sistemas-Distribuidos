@@ -1,10 +1,11 @@
 # Trabalho 01 — Gestão de Ambiente Inteligente · Fonte A + Painel Web
 
-**Versão atualizada** — Firmware ESP8266 HW-364A + DHT22/AM2302 + OLED; Gateway Python; interface Web do cliente com botões e gráfico, usando TCP + Protocol Buffers; gRPC de controle via bridge; UDP, multicast e SQLite.
+Firmware ESP8266 HW-364A + DHT22/AM2302 + OLED; Gateway Python;
+interface Web do cliente com botões e gráfico, usando TCP + Protocol Buffers; gRPC de controle via bridge; UDP, multicast e SQLite.
 
-Base: **Especificação Trabalho 1.pdf**, em especial os requisitos das páginas 3–5 (multicast, TCP, Protobuf, gRPC, fontes controláveis, consultas e painel gráfico).
 
-## 1. O que mudou
+
+## 1. Descrição Geral
 
 - A placa física usa **`SOURCE_ID = "FONTE_A"`**, **`SOURCE_CONTROLLABLE = true`**, tipo **`termohigrometro_ctrl`** em `firmware/Fonte_DHT22_OLED/Config.h`.
 - Preserva leitura DHT22, duas telas do OLED (sensor/rede), Wi-Fi, anúncio UDP multicast/Protobuf, telemetria UDP e controle remoto UDP/Protobuf na porta `50031`.
