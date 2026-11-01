@@ -1,0 +1,30 @@
+TRABALHO 01 - ATALHOS WINDOWS
+
+1) Extraia os cinco arquivos .bat diretamente na pasta raiz do seu projeto:
+   C:\Users\henri\Desktop\Trabalho-01-Sistemas-Distribuidos\
+   (a pasta que contem .venv, gateway, client e fonte_a_bridge).
+
+2) Dê dois cliques em:
+   - iniciar_tudo.bat: Gateway + bridge Fonte A + cliente Web + navegador.
+   - iniciar_gateway.bat: somente Gateway.
+   - iniciar_bridge_fonte_a.bat: somente bridge gRPC Fonte A.
+   - abrir_dashboard.bat: somente cliente Web e navegador.
+   - iniciar_cliente.bat: somente servidor do cliente Web (sem abrir navegador).
+
+3) Opcional: clique com o botao direito no arquivo .bat > Mostrar mais opcoes >
+   Enviar para > Area de trabalho (criar atalho).
+
+4) Enderecos usados no projeto:
+   - IP do computador/Gateway: 192.168.25.4
+   - IP da Fonte A (NodeMCU): 192.168.25.171
+   - Dashboard: http://127.0.0.1:8080
+   - Fonte C: descoberta e envio UDP direto ao Gateway (nao precisa de bridge).
+
+5) Se o endereco IP da Fonte A ou do computador mudar, abra os .bat no
+   Bloco de Notas e ajuste os IPs correspondentes.
+
+6) Se os processos ja estiverem abertos, nao abra outra copia nas mesmas portas.
+   Encerre cada servico com Ctrl+C na respectiva janela.
+
+Requisitos: Windows com o ambiente virtual .venv e dependencias do projeto
+ja instaladas. A regra do Firewall, caso necessaria, e configurada uma unica vez.
