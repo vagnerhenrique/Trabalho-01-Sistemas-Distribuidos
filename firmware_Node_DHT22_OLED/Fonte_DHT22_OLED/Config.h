@@ -3,14 +3,14 @@
 
 // Fonte A controlavel: Gateway -> gRPC Bridge no PC -> UDP Protobuf -> ESP8266.
 // O ESP8266 nao executa servidor gRPC nativo.
-constexpr char SOURCE_ID[] = "FONTE_A";
-constexpr bool SOURCE_CONTROLLABLE = true;
-constexpr char SOURCE_KIND[] = "termohigrometro_ctrl";
+// constexpr char SOURCE_ID[] = "FONTE_A";
+// constexpr bool SOURCE_CONTROLLABLE = true;
+// constexpr char SOURCE_KIND[] = "termohigrometro_ctrl";
 
 // Fonte C - Sensor continuo nao controlavel
-// constexpr char SOURCE_ID[] = "FONTE_C";
-// constexpr bool SOURCE_CONTROLLABLE = false;
-// constexpr char SOURCE_KIND[] = "termohigrometro_cont";
+constexpr char SOURCE_ID[] = "FONTE_D";
+constexpr bool SOURCE_CONTROLLABLE = false;
+constexpr char SOURCE_KIND[] = "termohigrometro_cont";
 
 // OLED HW-364A: I2C diferente do NodeMCU comum.
 constexpr uint8_t OLED_SDA_GPIO = 14; // D5

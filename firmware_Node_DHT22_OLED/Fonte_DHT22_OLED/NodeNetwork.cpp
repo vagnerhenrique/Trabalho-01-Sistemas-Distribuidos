@@ -26,6 +26,18 @@ uint32_t lastConnectAttempt = 0;
 uint32_t lastAnnouncement = 0;
 uint8_t messageBuffer[256];
 
+// LED integrado do ESP8266 (normalmente D4 / GPIO2)
+// LOW = LED aceso
+// HIGH = LED apagado
+
+void atualizarLedStatus() {
+  if (!SOURCE_CONTROLLABLE) return;
+
+  digitalWrite(
+    LED_BUILTIN,
+    enabled ? LOW : HIGH);
+}
+
 void announce() {
   if (!gatewayDiscovered || simulateFailure || WiFi.status() != WL_CONNECTED) return;
   const String ip = WiFi.localIP().toString();
@@ -81,12 +93,24 @@ void pollControl() {
   const uint16_t senderPort = controlUDP.remotePort();
   const int received = controlUDP.read(messageBuffer, packetLen);
   ControlPacket request;
+
   if (received <= 0 || !ProtoWire::decodeControl(messageBuffer, received, request)) return;
+
   if (strcmp(request.sourceID, SOURCE_ID) != 0) return;
   bool ok = true;
   const char *replyText = "OK";
-  if (!strcmp(request.command, "enabled")) enabled = request.enabled;
-  else if (!strcmp(request.command, "interval")) {
+  if (!strcmp(request.command, "enabled")) {
+
+    enabled = request.enabled;
+
+    // Atualiza o LED conforme o comando recebido
+    atualizarLedStatus();
+
+    Serial.printf(
+      "[LED] FONTE_A: %s\n",
+      enabled ? "ACESO" : "APAGADO");
+      
+  } else if (!strcmp(request.command, "interval")) {
     if (request.intervalMs >= 2000 && request.intervalMs <= 3600000)
       intervalMs = request.intervalMs;
     else {
@@ -141,6 +165,14 @@ void startSockets() {
 }  // namespace
 
 void NodeNetwork::begin() {
+
+  // Inicialização do LED integrado
+  if (SOURCE_CONTROLLABLE) {
+    digitalWrite(LED_BUILTIN, HIGH);
+    pinMode(LED_BUILTIN, OUTPUT);
+    atualizarLedStatus();
+  }
+
   WiFi.mode(WIFI_STA);
   WiFi.persistent(false);
   WiFi.setAutoReconnect(true);
