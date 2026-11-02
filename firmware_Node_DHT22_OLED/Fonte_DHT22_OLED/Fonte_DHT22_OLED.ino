@@ -49,6 +49,7 @@ void setup() {
   lastRead = now - READ_INTERVAL_MS; // leitura inicial imediata
   lastScreenSwitch = now;
   lastNetworkScreenDraw = now;
+  
 }
 
 void loop() {

@@ -9,10 +9,10 @@ if not exist ".venv\Scripts\python.exe" (
 )
 echo =========================================
 echo Gateway - Trabalho 01
- echo IP anunciado: 192.168.25.4
+ echo IP anunciado: 192.168.1.101
  echo UDP: 50001 e 50002 / TCP: 50010
  echo =========================================
-".venv\Scripts\python.exe" -m gateway.gateway --advertise-ip 192.168.25.4
+".venv\Scripts\python.exe" -m gateway.gateway --advertise-ip 192.168.1.101
 echo.
 echo Gateway encerrado. Confira as mensagens acima.
 pause

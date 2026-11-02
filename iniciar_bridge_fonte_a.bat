@@ -9,10 +9,10 @@ if not exist ".venv\Scripts\python.exe" (
 )
 echo =========================================
 echo Bridge gRPC - Fonte A
- echo Gateway/PC: 192.168.25.4
- echo NodeMCU Fonte A: 192.168.25.171
+ echo Gateway/PC: 192.168.1.101
+ echo NodeMCU Fonte A: 192.168.1.150
  echo =========================================
-".venv\Scripts\python.exe" -m fonte_a_bridge.bridge --source-id FONTE_A --node-ip 192.168.25.171 --advertise-ip 192.168.25.4 --gateway-ip 192.168.25.4
+".venv\Scripts\python.exe" -m fonte_a_bridge.bridge --source-id FONTE_A --node-ip 192.168.1.150 --advertise-ip 192.168.1.101 --gateway-ip 192.168.1.101
 echo.
 echo Bridge encerrado. Confira as mensagens acima.
 pause

@@ -11,7 +11,7 @@ WiFiUDP multicastUDP;
 WiFiUDP telemetryUDP;
 WiFiUDP controlUDP;
 WiFiUDP announcementUDP;
-IPAddress multicastAddress(MULTICAST_IP[0],MULTICAST_IP[1],MULTICAST_IP[2],MULTICAST_IP[3]);
+IPAddress multicastAddress(MULTICAST_IP[0], MULTICAST_IP[1], MULTICAST_IP[2], MULTICAST_IP[3]);
 IPAddress gatewayIP;
 bool multicastStarted = false;
 bool controlStarted = false;
@@ -30,8 +30,8 @@ void announce() {
   if (!gatewayDiscovered || simulateFailure || WiFi.status() != WL_CONNECTED) return;
   const String ip = WiFi.localIP().toString();
   const size_t length = ProtoWire::encodeAnnouncement(messageBuffer, sizeof(messageBuffer),
-    SOURCE_ID, SOURCE_KIND, ip.c_str(), SOURCE_CONTROLLABLE,
-    enabled, intervalMs, thresholdTempC, simulateFailure);
+                                                      SOURCE_ID, SOURCE_KIND, ip.c_str(), SOURCE_CONTROLLABLE,
+                                                      enabled, intervalMs, thresholdTempC, simulateFailure);
   if (length && announcementUDP.beginPacket(gatewayIP, announcePort)) {
     announcementUDP.write(messageBuffer, length);
     announcementUDP.endPacket();
@@ -57,12 +57,22 @@ void pollDiscovery() {
   gatewayDiscovered = true;
   Serial.printf("Gateway encontrado %s\n", gatewayIP.toString().c_str());
   announce();
+  // Serial.printf("MAC Fonte A: %s\n", WiFi.macAddress().c_str());
 }
 
 void pollControl() {
   if (!SOURCE_CONTROLLABLE || !controlStarted) return;
+
   const int packetLen = controlUDP.parsePacket();
   if (packetLen <= 0) return;
+
+  Serial.printf(
+    "[CONTROLE] UDP recebido: %d bytes de %s:%u\n",
+    packetLen,
+    controlUDP.remoteIP().toString().c_str(),
+    controlUDP.remotePort());
+
+
   if (packetLen > static_cast<int>(sizeof(messageBuffer))) {
     while (controlUDP.available()) controlUDP.read();
     return;
@@ -79,13 +89,18 @@ void pollControl() {
   else if (!strcmp(request.command, "interval")) {
     if (request.intervalMs >= 2000 && request.intervalMs <= 3600000)
       intervalMs = request.intervalMs;
-    else { ok = false; replyText = "Intervalo invalido"; }
+    else {
+      ok = false;
+      replyText = "Intervalo invalido";
+    }
   } else if (!strcmp(request.command, "threshold")) thresholdTempC = request.threshold;
   else if (!strcmp(request.command, "failure")) simulateFailure = request.failure;
-  else if (!strcmp(request.command, "status")) { /* nao altera estado */ }
-  else { ok = false; replyText = "Comando invalido"; }
+  else if (!strcmp(request.command, "status")) { /* nao altera estado */ } else {
+    ok = false;
+    replyText = "Comando invalido";
+  }
   const size_t replyLength = ProtoWire::encodeControlReply(messageBuffer, sizeof(messageBuffer),
-    ok, replyText, enabled, intervalMs, thresholdTempC, simulateFailure, request.requestID);
+                                                           ok, replyText, enabled, intervalMs, thresholdTempC, simulateFailure, request.requestID);
   if (replyLength && controlUDP.beginPacket(senderIP, senderPort)) {
     controlUDP.write(messageBuffer, replyLength);
     controlUDP.endPacket();
@@ -95,13 +110,35 @@ void pollControl() {
 }
 
 void startSockets() {
-  if (WiFi.status() != WL_CONNECTED || multicastStarted) return;
-  multicastStarted = multicastUDP.beginMulticast(WiFi.localIP(), multicastAddress, DISCOVERY_PORT);
-  if (SOURCE_CONTROLLABLE) controlStarted = controlUDP.begin(CONTROL_PORT);
-  Serial.printf("WiFi conectado SSID=%s IP=%s multicast=%d controle=%d\n",
-    WiFi.SSID().c_str(), WiFi.localIP().toString().c_str(), multicastStarted, controlStarted);
+
+  if (WiFi.status() != WL_CONNECTED)
+    return;
+
+  // Inicializa o multicast apenas quando necessário
+  if (!multicastStarted) {
+    multicastStarted = multicastUDP.beginMulticast(
+      WiFi.localIP(),
+      multicastAddress,
+      DISCOVERY_PORT);
+
+    Serial.printf(
+      "[REDE] Multicast iniciado: %d\n",
+      multicastStarted);
+  }
+
+  // Inicializa o controle independentemente do multicast
+  if (SOURCE_CONTROLLABLE && !controlStarted) {
+
+    controlStarted = controlUDP.begin(CONTROL_PORT);
+
+    Serial.printf(
+      "[CONTROLE] Porta UDP=%u, iniciado=%d\n",
+      CONTROL_PORT,
+      controlStarted);
+  }
 }
-} // namespace
+
+}  // namespace
 
 void NodeNetwork::begin() {
   WiFi.mode(WIFI_STA);
@@ -144,17 +181,30 @@ NodeNetwork::NetworkDisplayStatus NodeNetwork::displayStatus() {
   return status;
 }
 
-bool NodeNetwork::connected() { return WiFi.status() == WL_CONNECTED && gatewayDiscovered; }
-bool NodeNetwork::sourceEnabled() { return enabled; }
-bool NodeNetwork::telemetryEnabled() { return connected() && enabled && !simulateFailure; }
-float NodeNetwork::alertThreshold() { return thresholdTempC; }
-uint32_t NodeNetwork::sendIntervalMs() { return intervalMs; }
+bool NodeNetwork::connected() {
+  return WiFi.status() == WL_CONNECTED && gatewayDiscovered;
+}
+bool NodeNetwork::sourceEnabled() {
+  return enabled;
+}
+bool NodeNetwork::telemetryEnabled() {
+  return connected() && enabled && !simulateFailure;
+}
+float NodeNetwork::alertThreshold() {
+  return thresholdTempC;
+}
+uint32_t NodeNetwork::sendIntervalMs() {
+  return intervalMs;
+}
 
 void NodeNetwork::sendMeasurement(float temp, float hum, uint32_t seq, bool alert) {
   if (!telemetryEnabled()) return;
   const size_t length = ProtoWire::encodeTelemetry(messageBuffer, sizeof(messageBuffer),
-    SOURCE_ID, seq, temp, hum, millis(), alert);
-  if (!length) { Serial.println("Erro: buffer Protobuf insuficiente"); return; }
+                                                   SOURCE_ID, seq, temp, hum, millis(), alert);
+  if (!length) {
+    Serial.println("Erro: buffer Protobuf insuficiente");
+    return;
+  }
   if (telemetryUDP.beginPacket(gatewayIP, telemetryPort)) {
     telemetryUDP.write(messageBuffer, length);
     if (telemetryUDP.endPacket())
